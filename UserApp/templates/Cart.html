@@ -1,0 +1,103 @@
+{%extends "Home.html"%}
+{%block content%}
+
+<script type="text/javascript">
+    function increment(qid) {
+        qty = document.getElementById(qid);
+        val = parseInt(qty.value);
+        if (val < 5) {
+            val += 1
+        }
+        qty.value = val;
+    }
+    function decrement(qid) {
+        qty = document.getElementById(qid);
+        val = parseInt(qty.value);
+        if (val > 1) {
+            val -= 1
+        }
+        qty.value = val;
+    }
+
+    function getConfirmation(myid) {
+        var ans = confirm("Are you sure you want to delete?");
+        if (ans == true) {
+            var myform = document.getElementById(myid);
+            // alert(myform);
+            var action = document.createElement('input');
+            action.type = 'hidden';
+            action.name = 'action';
+            action.value = 'delete';
+            myform.appendChild(action);
+            myform.submit();
+        }
+
+        else {
+            return;
+        }
+    }
+</script>
+
+<table class="table">
+    <tr>
+        <!-- <th>Cart_id</th> -->
+        <th>Cake Name</th>
+        <th>Image</th>
+        <th>Cake Price</th>
+        <th>Quantity</th>
+        <th>Add Quantity</th>
+        <th>Subtotal</th>
+        <th>Delete</th>
+        <th>Edit</th>
+    </tr>
+
+    {%for item in items%}
+    <form method="post" id='myform{{item.id}}'>
+        {%csrf_token%}
+        <tr>
+            <!-- <td>{{item.id}}</td> -->
+            <td>{{item.cake.cake_name}}</td>
+            <td><img src="{{item.cake.image_url.url}}" class="form-control" style="width: 70px; height: 70px;" />
+            </td>
+            <td>{{item.cake.price}}</td>
+            <td>{{item.qty}}</td>
+
+            <td>
+                <button type="button" id="decrement1" class="btn btn-warning"
+                    onclick="decrement('qty{{item.cake.id}}');">-</button>
+                <input type="text" value="{{item.qty}}" size="2" id="qty{{item.cake.id}}" name="qty" />
+                <button type="button" id="increment1" class="btn btn-warning"
+                    onclick="increment('qty{{item.cake.id}}');">+</button>
+            </td>
+
+            <!-- subtotal -->
+            <td>{%widthratio item.cake.price 1 item.qty%}</td>
+
+            <td>
+                <button type="button" onclick="getConfirmation('myform{{item.id}}')" class="btn btn-danger form-control"
+                    value="delete" name="action"><span class="glyphicon glyphicon-trash"></span></button>
+            </td>
+
+            <td>
+                <button type="submit" class="btn btn-danger form-control" value="edit" name="action">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </button>
+            </td>
+            <td><input type="hidden" name="cart_id" value="{{item.id}}" />
+            </td>
+
+        </tr>
+
+    </form>
+
+    {%endfor%}
+</table>
+<hr />
+<h2>Total : {{request.session.total}}</h2>
+<center>
+
+    <a href="/makepayment"><button type="button" class="btn btn-success form-control">Make Payment <span
+                class="glyphicon glyphicon-usd"></span></button></a>
+</center>
+</form>
+{%endblock%}
